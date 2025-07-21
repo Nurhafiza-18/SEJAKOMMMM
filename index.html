@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEJAKOM - Papan Pemuka</title>
+
+  <!-- === PENTING: KOD UNTUK PROGRESSIVE WEB APP (PWA) === -->
+  <meta name="theme-color" content="#764ba2">
+  <link rel="manifest" href="data:application/manifest+json,{"name":"SEJAKOM - Sejarah Islam","short_name":"SEJAKOM","description":"JOM MENEROKA DUNIA SEJARAH ISLAM MELALUI PENGALAMAN BERBEZA","start_url":".","display":"standalone","background_color":"#667eea","theme_color":"#764ba2","icons":[{"src":"icons/icon-192x192.png","type":"image/png","sizes":"192x192"},{"src":"icons/icon-512x512.png","type":"image/png","sizes":"512x512"}]}">
+  <!-- ======================================================= -->
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        font-family: 'Poppins', sans-serif; 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        min-height: 100vh; 
+        overflow-x: hidden; 
+    }
+    .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .star { position: absolute; width: 2px; height: 2px; background: rgba(255, 255, 255, 0.8); border-radius: 50%; animation: twinkle 2s infinite; }
+    @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    
+    .container { 
+        position: relative; 
+        z-index: 2; 
+        max-width: 1200px; 
+        margin: 0 auto; 
+        padding: 20px; 
+        text-align: center; 
+    }
+    .main-content-wrapper { 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        min-height: 100vh;
+    }
+    .brand { 
+        font-size: 4rem; 
+        font-weight: 700; 
+        color: #fff; 
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
+        margin-bottom: 10px; 
+        animation: glow 2s ease-in-out infinite alternate; 
+    }
+    @keyframes glow { 
+        from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } 
+        to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.6); } 
+    }
+    .slogan { 
+        font-size: 1.2rem; 
+        color: rgba(255, 255, 255, 0.9); 
+        margin-bottom: 40px; 
+        animation: fadeInUp 1s ease-out; 
+    }
+    @keyframes fadeInUp { 
+        from { opacity: 0; transform: translateY(30px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+    
+    .button-group { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 20px; 
+        margin-bottom: 30px; 
+        position: relative; 
+        align-items: center; /* Center buttons horizontally */
+    }
+
+    .button-group button {
+        width: 100%;
+        max-width: 400px; /* Limit button width on larger screens */
+    }
+
+    .characters-below-buttons { 
+        display: flex; 
+        justify-content: center; 
+        align-items: flex-end; 
+        margin-top: -50px; 
+        position: relative; 
+        z-index: -1; 
+        pointer-events: none; 
+        opacity: 0; 
+        transform: translateY(30px); 
+        transition: opacity 0.4s ease-out, transform 0.4s ease-out; 
+    }
+    .character-left, .character-right { 
+        max-height: 220px; 
+        height: auto; 
+        filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.5)); 
+        transition: transform 0.3s ease; 
+    }
+    .character-left { transform: rotate(-8deg); }
+    .character-right { transform: rotate(8deg); }
+    .button-group:hover .characters-below-buttons { opacity: 1; transform: translateY(0); }
+    
+    button { 
+        background: linear-gradient(45deg, #ff6b6b, #feca57); 
+        border: none; 
+        padding: 15px 30px; 
+        font-size: 1.1rem; 
+        font-weight: 600; 
+        color: #fff; 
+        border-radius: 50px; 
+        cursor: pointer; 
+        transition: all 0.3s ease; 
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); 
+        position: relative; 
+        overflow: hidden; 
+    }
+    button:hover { 
+        transform: translateY(-3px); 
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); 
+    }
+    .hidden { display: none !important; }
+
+    .tokoh-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+        gap: 20px; 
+        margin-top: 30px; 
+    }
+    .tokoh-card { 
+        position: relative; 
+        background: rgba(255, 255, 255, 0.1); 
+        backdrop-filter: blur(10px); 
+        border-radius: 20px; 
+        padding: 20px; 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        transition: all 0.3s ease; 
+        cursor: pointer; 
+        animation: slideIn 0.5s ease-out; 
+    }
+    .tokoh-card:hover { 
+        transform: translateY(-10px) scale(1.05); 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); 
+        background: rgba(255, 255, 255, 0.2); 
+    }
+    .tokoh-card h3 { color: #fff; font-size: 1.3rem; margin-bottom: 10px; }
+    .tokoh-card p { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; }
+    .completed-checkmark { 
+        position: absolute; 
+        top: 15px; 
+        right: 15px; 
+        font-size: 1.5rem; 
+        color: #1dd1a1; 
+        text-shadow: 0 0 10px #1dd1a1; 
+        opacity: 0; 
+        transition: opacity 0.3s; 
+        pointer-events: none; 
+    }
+    .tokoh-card.completed .completed-checkmark { opacity: 1; }
+
+    .tokoh-info, .content-page { 
+        background: rgba(255, 255, 255, 0.1); 
+        backdrop-filter: blur(15px); 
+        border-radius: 30px; 
+        padding: 40px; 
+        margin-top: 30px; 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        animation: expandIn 0.5s ease-out; 
+        max-width: 900px; 
+        margin: 30px auto; 
+    }
+    @keyframes expandIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .tokoh-header { text-align: center; margin-bottom: 30px; }
+    .tokoh-name { color: #fff; font-size: 2.5rem; font-weight: 700; margin-top: 20px; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+    .tokoh-background { 
+        background: rgba(255, 255, 255, 0.05); 
+        border-radius: 20px; 
+        padding: 25px; 
+        margin-bottom: 30px; 
+        border-left: 5px solid #feca57; 
+        text-align: center; 
+    }
+    .audio-intro-container { margin-top: 25px; }
+    .audio-intro-container h4 { color: #feca57; font-weight: 600; margin-bottom: 10px; }
+    .tokoh-background p { color: rgba(255, 255, 255, 0.95); font-size: 1.1rem; line-height: 1.8; text-align: justify; }
+    
+    .tokoh-facts h3 { color: #feca57; font-size: 1.5rem; margin-bottom: 20px; text-align: center; }
+    .tokoh-img { 
+        width: 200px; /* Adjusted size */
+        height: 200px; /* Adjusted size */
+        border-radius: 50%; 
+        object-fit: cover; 
+        border: 5px solid rgba(255, 255, 255, 0.3); 
+        margin-bottom: 20px; 
+        animation: rotateIn 0.8s ease-out; 
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); 
+    }
+    @keyframes rotateIn { from { opacity: 0; transform: rotate(-180deg) scale(0.5); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+    
+    .tokoh-desc { text-align: left; max-width: 600px; margin: 0 auto; list-style: none; padding: 0;}
+    .tokoh-desc li { 
+        color: rgba(255, 255, 255, 0.9); 
+        font-size: 1rem; /* Adjusted for readability */
+        line-height: 1.6; 
+        margin-bottom: 15px; 
+        padding-left: 25px; /* More space for the icon */
+        position: relative; 
+        animation: fadeInLeft 0.5s ease-out; 
+        animation-fill-mode: both; 
+    }
+    .tokoh-desc li::before { content: '🌟'; position: absolute; left: 0; top: 0; }
+    @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+    
+    .back-button { 
+        background: linear-gradient(45deg, #667eea, #764ba2); 
+        margin-top: 30px; 
+    }
+    
+    .content-page img, .media-container iframe { 
+        max-width: 100%; 
+        height: auto; /* Maintain aspect ratio */
+        border-radius: 15px; 
+        margin-bottom: 20px; 
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); 
+    }
+    .media-container iframe {
+        width: 100%; /* Ensure iframe fills container */
+    }
+
+    .nav-buttons { 
+        display: flex; 
+        justify-content: space-between; 
+        margin-top: 30px; 
+        flex-wrap: wrap; 
+        gap: 10px;
+    }
+    .content-page .game-button { 
+        background: linear-gradient(45deg, #1dd1a1, #10ac84); 
+        margin-top: 20px; 
+        padding: 15px 30px; 
+        font-size: 1.1rem; 
+    }
+    .page-indicator { color: white; font-size: 1rem; margin: 20px 0; opacity: 0.8; }
+    
+    .lazy { opacity: 0; transition: opacity 0.5s ease-in-out; background-color: rgba(255,255,255,0.1); }
+    .lazy.loaded { opacity: 1; background-color: transparent; }
+    .tokoh-img.lazy { border-radius: 50%; min-height: 200px; }
+    .content-page img.lazy { border-radius: 15px; min-height: 200px; }
+
+    /* POPUP & LENCANA */
+    .popup-overlay { 
+        position: fixed; 
+        top: 0; left: 0; width: 100%; height: 100%; 
+        background-color: rgba(0, 0, 0, 0.7); 
+        backdrop-filter: blur(10px); 
+        display: none; justify-content: center; align-items: center; 
+        z-index: 1000; 
+        animation: fadeIn 0.5s ease-out; 
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    .popup-content { 
+        background: linear-gradient(135deg, #764ba2, #667eea); 
+        padding: 30px 40px; 
+        border-radius: 20px; 
+        color: white; 
+        text-align: center; 
+        max-width: 90%; 
+        width: 550px; 
+        position: relative; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
+        transform: scale(0.9); 
+        animation: popIn 0.5s ease-out forwards; 
+    }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .popup-content h2 { font-size: 1.8rem; margin-bottom: 20px; color: #feca57; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    .popup-content p { font-size: 1rem; margin-bottom: 25px; line-height: 1.6; }
+    .popup-close-btn { background: #ff6b6b; padding: 10px 25px; }
+    
+    .badge-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* smaller minmax */
+        gap: 15px; /* slightly smaller gap */
+        margin-top: 20px; 
+        max-height: 60vh; 
+        overflow-y: auto; 
+        padding: 10px; 
+    }
+    .badge-card { 
+        background: rgba(255, 255, 255, 0.1); 
+        padding: 15px; /* smaller padding */
+        border-radius: 15px; 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        transition: all 0.3s ease; 
+    }
+    .badge-card.locked { filter: grayscale(100%); opacity: 0.5; }
+    .badge-card.earned { border-color: #feca57; box-shadow: 0 0 20px rgba(254, 202, 87, 0.7); }
+    .badge-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .badge-name { font-size: 0.8rem; font-weight: 600; }
+    
+    /* MOBILE OPTIMIZATION */
+    @media (max-width: 768px) {
+      .brand { font-size: 3rem; }
+      .slogan { font-size: 1rem; padding: 0 10px; margin-bottom: 30px; }
+      .tokoh-info, .content-page, .popup-content { 
+          padding: 25px; /* More consistent padding */
+          margin: 20px auto; 
+      }
+      .tokoh-img { width: 150px; height: 150px; }
+      .tokoh-name { font-size: 2rem; }
+      .tokoh-background p { font-size: 1rem; }
+      .tokoh-desc li { font-size: 0.9rem; }
+      .popup-content { padding: 25px 20px; }
+      .popup-content h2 { font-size: 1.5rem; }
+      .popup-content p { font-size: 0.9rem; }
+
+      .characters-below-buttons { 
+          opacity: 1; 
+          transform: translateY(0); 
+          margin-top: -30px; 
+      }
+      .character-left, .character-right { max-height: 120px; }
+      .button-group:hover .characters-below-buttons { transform: translateY(0); } /* Disable hover effect on mobile */
+      
+      .nav-buttons button {
+          width: 100%; /* Make nav buttons full width for easier tapping */
+          margin-bottom: 10px;
+      }
+      .nav-buttons button:last-child {
+          margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+        .brand { font-size: 2.5rem; }
+        .slogan { font-size: 0.9rem; }
+        button { font-size: 1rem; padding: 12px 25px; }
+        .tokoh-grid { grid-template-columns: 1fr; } /* Single column layout for cards */
+        
+        .tokoh-info, .content-page, .popup-content {
+             padding: 20px;
+        }
+
+        .tokoh-name { font-size: 1.8rem; }
+        .tokoh-img { width: 120px; height: 120px; }
+        .tokoh-background p { font-size: 0.9rem; line-height: 1.7; }
+        .tokoh-facts h3 { font-size: 1.3rem; }
+
+        .badge-grid { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
+        .badge-icon { font-size: 2rem; }
+        .badge-name { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Kandungan HTML anda (body) kekal sama, tidak perlu diubah -->
+  <div class="stars"></div>
+  <div class="container">
+    <div id="main-content" class="main-content-wrapper">
+        <h1 class="brand">SEJAKOM</h1>
+        <p class="slogan">JOM MENEROKA DUNIA SEJARAH ISLAM MELALUI PENGALAMAN BERBEZA</p>
+        <div class="button-group" id="main-buttons">
+          <button onclick="playSound(); showTokohButtons()">👑 Jom Berkenalan dengan Tokoh</button>
+          <button onclick="playSound(); window.open('https://nurhafiza-18.github.io/PETA/', '_blank')">✨ Jom Hayati Nilai Tokoh</button>
+          <button onclick="playSound(); showBadgeCollection()" style="background: linear-gradient(45deg, #1dd1a1, #10ac84);">🏆 Koleksi Lencana Saya</button>
+          <div class="characters-below-buttons">
+            <img data-src="https://i.ibb.co/605s0SSz/1.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Karakter Sejarah 1" class="character-left lazy">
+            <img data-src="https://i.ibb.co/wNs1Nq06/33.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Karakter Sejarah 2" class="character-right lazy">
+          </div>
+        </div>
+    </div>
+    <div id="tokoh-buttons-container" class="hidden">
+      <div id="tokoh-grid" class="tokoh-grid">
+        <!-- Kad tokoh akan dijana di sini oleh JavaScript -->
+      </div>
+    </div>
+    <div id="tokoh-info" class="hidden"></div>
+    <div id="content-pages" class="hidden"></div>
+    <button id="back-button" class="back-button hidden" onclick="playSound(); goBack()">⬅ Kembali ke Menu Utama</button>
+  </div>
+
+  <!-- Pop-up Motivasi -->
+  <div id="motivation-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h2 id="motivation-title">Syabas!</h2>
+      <p id="motivation-text">Teruskan belajar!</p>
+      <button class="popup-close-btn" onclick="playSound(); closeMotivationPopup()">Hebat!</button>
+    </div>
+  </div>
+
+  <!-- Pop-up Koleksi Lencana -->
+  <div id="badge-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h2>Koleksi Lencana</h2>
+      <p>Kumpul semua lencana dengan menyelesaikan setiap tokoh. Anda adalah cendekiawan sejarah!</p>
+      <div id="badge-grid-popup" class="badge-grid">
+        <!-- Lencana akan dijana di sini -->
+      </div>
+      <button class="popup-close-btn" onclick="playSound(); closeBadgePopup()" style="margin-top: 20px;">Tutup</button>
+    </div>
+  </div>
+
+  <audio id="click-sound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
+  <audio id="badge-sound" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3" preload="auto"></audio>
+
+  <script>
+    // 1. DATA LENGKAP & PEMBOLEHUBAH
+    const tokohData = {
+      abu: {
+        desc: "Khalifah pertama yang memimpin dengan kebijaksanaan",
+        name: "Abu Bakar As-Siddiq",
+        img: "https://i.ibb.co/rKR694wk/2.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1eoSsogo2PeT?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Abu Bakar As-Siddiq (573-634 M) adalah seorang yang sangat istimewa dalam sejarah Islam. Beliau bukan hanya khalifah pertama selepas kewafatan Rasulullah SAW, tetapi juga sahabat yang paling dekat dengan Nabi sejak awal dakwah Islam. Nama 'As-Siddiq' yang bermaksud 'yang membenarkan' diberikan kepadanya kerana beliau dengan segera membenarkan peristiwa Isra' dan Mikraj tanpa keraguan sedikitpun. Ketika Nabi SAW wafat, beliau memainkan peranan penting dalam menstabilkan umat Islam yang sedang goyah. Dengan kebijaksanaan dan ketegasannya, beliau menangani krisis Perang Riddah dan memastikan Al-Quran dihimpunkan dalam satu mushaf. Pemerintahan beliau yang singkat namun berkesan meletakkan asas kukuh bagi perkembangan Islam yang akan datang.",
+        facts: ["Khalifah pertama selepas kewafatan Nabi Muhammad SAW.", "Digelar As-Siddiq kerana membenarkan peristiwa Isra' dan Mikraj.", "Menentang golongan murtad dalam Perang Riddah.", "Menghimpunkan Al-Quran dalam satu mushaf.", "Sahabat karib Nabi dan orang dewasa lelaki pertama yang memeluk Islam."],
+        motivation: "Kejujuran dan keyakinan Abu Bakar adalah kompasnya. Jadikan kebenaran sebagai panduanmu, nescaya kamu akan memimpin dengan hormat.",
+        badgeIcon: "💎", badgeName: "Lencana As-Siddiq",
+        pages: [ { type: "image", content: "https://i.ibb.co/rKR694wk/2.png" }, { type: "video", content: '<iframe class="lazy" width="100%" height="315" data-src="https://www.youtube.com/embed/uXWpodlzBok" title="Saidina Abu Bakar As-siddiq" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' }, { type: "image", content: "https://i.ibb.co/8Jsx97v/bkr.png" }, { type: "image", content: "https://i.ibb.co/27wTy2QC/4.png" }, { type: 'game', url: 'https://nurhafiza-18.github.io/abubakar/', caption: 'Jom Main Game' } ]
+      },
+      umar: {
+        desc: "Khalifah kedua yang memperluas empayar Islam",
+        name: "Umar Al-Khattab",
+        img: "https://i.ibb.co/gF9ZbfkV/6.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1oGqAIkiyRjF?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Umar bin Al-Khattab (584-644 M) adalah khalifah kedua yang membawa revolusi besar dalam sejarah Islam. Sebelum memeluk Islam, beliau adalah musuh yang ditakuti, tetapi setelah hidayah Allah menyentuh hatinya, beliau menjadi tiang kekuatan Islam. Pemerintahannya selama 10 tahun mengukir sejarah gemilang dengan perluasan wilayah Islam yang mencakup Parsi, Rom, Mesir, dan Syria. Beliau memperkenalkan sistem pentadbiran yang moden termasuk Baitulmal, sistem pos, dan pengadilan serta memperkenalkan Kalendar Hijrah. Keadilannya terkenal hingga musuh pun mengakui kehebatannya. Tragisnya, beliau syahid ketika sedang mengimami solat Subuh setelah ditikam oleh Abu Lu'luah, seorang hamba Parsi. Kepemimpinannya yang tegas namun adil menjadi contoh teladan bagi pemimpin-pemimpin selepasnya.",
+        facts: ["Khalifah kedua yang memperluas empayar Islam ke Parsi dan Rom.", "Memperkenalkan sistem pentadbiran moden seperti Baitulmal dan kalendar Hijriah.", "Mengasaskan Majlis Syura untuk membuat keputusan.", "Digelar 'Al-Faruq' iaitu pemisah antara hak dan batil.", "Meninggal dunia akibat ditikam ketika solat Subuh."],
+        motivation: "Seperti Umar yang adil dan berani, jangan takut untuk membela apa yang benar. Setiap langkah kecil ke arah keadilan adalah satu kemajuan besar.",
+        badgeIcon: "⚖️", badgeName: "Lencana Al-Faruq",
+        pages: [ { type: "image", content: "https://i.ibb.co/JRQ67dkK/5.png" }, { type: "audio", content: '<h4>Dengarkan podcast</h4><div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/16xFJ5g9bZba?autoplay=0" frameborder="0" allow="autoplay"></iframe><br><a href="https://voca.ro/16xFJ5g9bZba" title="Vocaroo Voice Recorder" target="_blank">View on Vocaroo >></a></div>' }, { type: "image", content: "https://i.ibb.co/gF9ZbfkV/6.png" }, { type: "video", content: '<iframe class="lazy" width="100%" height="315" data-src="https://www.youtube.com/embed/iRUnHczAvl8" title="Kata-kata hikmat Abu Bakar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' }, { type: "image", content: "https://i.ibb.co/3mKBJKVc/khattb.png" }, { type: "image", content: "https://i.ibb.co/7dxhbtZw/8.png" }, { type: "image", content: "https://i.ibb.co/9mVMNQ9W/9.png" }, { type: 'game', url: 'https://nurhafiza-18.github.io/khattab/', caption: 'Jom Bermain' } ]
+      },
+      aziz: {
+        desc: "Khalifah yang zuhud dan menegakkan keadilan",
+        name: "Umar Abdul Aziz",
+        img: "https://i.ibb.co/ksLz5y4q/10.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1fJuF0eqzrs1?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Umar bin Abdul Aziz (680-720 M) adalah khalifah Umayyah yang paling dihormati dan dikenang sebagai 'khalifah yang kelima' atau Khulafa al-Rasyidin kelima. Beliau adalah cicit kepada Khalifah Umar Al-Khattab dari sebelah ibunya. Beliau mewarisi takhta dalam keadaan empayar yang mewah, tetapi dengan keberanian yang luar biasa, beliau mengubah semuanya. Kehidupannya yang zuhud dan sederhana menjadi contoh kepada semua. Beliau memecat pegawai-pegawai yang korup, menghentikan amalan mencela Saidina Ali bin Abi Talib di mimbar-mimbar, dan meningkatkan kebajikan rakyat. Reformasi yang dibawanya begitu mendalam sehingga rakyat hidup dalam kemakmuran. Sayangnya, pemerintahannya yang adil ini hanya bertahan sekitar dua setengah tahun kerana beliau meninggal dunia, kemungkinan diracun oleh mereka yang tidak senang dengan reformasinya.",
+        facts: ["Khalifah Umayyah yang zuhud dan sederhana.", "Memecat pegawai rasuah dan menegakkan keadilan.", "Dianggap sebagai khalifah ke-5 paling adil selepas Khulafa al-Rasyidin.", "Menolak kemewahan istana dan hidup seperti rakyat biasa.", "Menghentikan tradisi mencela Saidina Ali bin Abi Talib di mimbar."],
+        motivation: "Kesederhanaan adalah kekayaan sejati. Contohi Umar Abdul Aziz, hiduplah dengan rendah hati dan berkhidmatlah kepada orang lain dengan ikhlas.",
+        badgeIcon: "🌱", badgeName: "Lencana Keadilan",
+        pages: [ { type: "image", content: "https://i.ibb.co/ksLz5y4q/10.png" }, { type: "audio", content: `<h3>Umar Abdul Aziz 🎵</h3><div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1nuB34eeD8sK?autoplay=0" frameborder="0" allow="autoplay"></iframe><br><a href="https://voca.ro/1nuB34eeD8sK" title="Vocaroo Voice Recorder" target="_blank">View on Vocaroo >></a></div><br><p style="text-align:center; white-space: pre-wrap; line-height: 1.6;">Verse 1:\nUmar Abdul Aziz, khalifah ternama,\nAdil memimpin, sederhana gaya.\nTak suka membazir, tak hidup mewah,\nTakutkan Allah setiap langkah.\n\nChorus:\nMari kenali pemimpin utama,\nContoh terbaik sepanjang zaman.\nIslam dijulang, rakyat dibela,\nUmar Abdul Aziz, insan berjasa!\n\nVerse 2:\nDua tahun memimpin dunia,\nTapi jasa besar tiada bandingnya.\nHarta dijaga, amanah utama,\nHidup berkhidmat, bukan bermegah.\n\nChorus (ulang):\nMari kenali pemimpin utama,\nContoh terbaik sepanjang zaman.\nIslam dijulang, rakyat dibela,\nUmar Abdul Aziz, insan berjasa!</p>` }, { type: "image", content: "https://i.ibb.co/3y0vKY51/12.png" }, { type: "image", content: "https://i.ibb.co/LzvM7N95/13.png" }, { type: 'game', url: 'https://nurhafiza-18.github.io/gameaziz/', caption: 'Jom Main Game' } ]
+      },
+      harun: {
+        desc: "Pemimpin era kegemilangan Islam Abbasiyah",
+        name: "Harun Al-Rasyid",
+        img: "https://i.ibb.co/pvqQHvnX/14.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/104o1Gsi3dfL?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Harun Al-Rasyid (766-809 M) adalah khalifah kelima Abbasiyah yang paling terkenal dan memerintah semasa zaman kegemilangan Islam. Pemerintahannya selama 23 tahun menandakan kemuncak peradaban Islam dalam bidang ilmu pengetahuan, seni, dan kesusasteraan. Beliau menubuhkan 'Baitul Hikmah' di Baghdad yang menjadi pusat pembelajaran dan penterjemahan terbesar di dunia ketika itu. Ribuan karya dari Greek, Parsi, dan India diterjemahkan ke dalam bahasa Arab. Keadilannya dan kebijaksanaannya dalam mentadbir kerajaan menjadikan Baghdad sebagai kota yang paling maju dan makmur di dunia. Beliau juga menjalinkan hubungan diplomatik dengan empayar luar. Kisah-kisah tentang beliau diabadikan dalam 'Seribu Satu Malam' yang menggambarkan kemewahan dan keadilannya. Masa pemerintahannya dianggap sebagai 'Zaman Keemasan Islam'.",
+        facts: ["Memerintah semasa Zaman Kegemilangan Islam (Abbasiyah).", "Menubuhkan 'Baitul Hikmah' – pusat ilmu Islam di Baghdad.", "Menggalakkan perkembangan sains, falsafah dan kesusasteraan.", "Wilayah kekuasaan terbentang dari Laut Mediterranean hingga ke India.", "Memerintah dengan keadilan dan membawa kemakmuran."],
+        motivation: "Ilmu adalah cahaya yang menerangi kegelapan. Jadilah seperti Harun Al-Rasyid, sentiasa dahagakan ilmu dan gunakannya untuk kebaikan.",
+        badgeIcon: "📚", badgeName: "Lencana Al-Hikmah",
+        pages: [ { type: "image", content: "https://i.ibb.co/pvqQHvnX/14.png" }, { type: "image", content: "https://i.ibb.co/Sw95vFJy/harun.png"}, { type: "audio", content: `<h3>Harun Al-Rasyid 🎵</h3><div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1mg9INkrhSaC?autoplay=0" frameborder="0" allow="autoplay"></iframe><br><a href="https://voca.ro/1mg9INkrhSaC" title="Vocaroo Voice Recorder" target="_blank">View on Vocaroo >></a></div><br><p style="text-align:center; white-space: pre-wrap; line-height: 1.6;">Verse 1:\nHarun Al-Rasyid, khalifah ternama,\nBijaksana memimpin umatnya,\nIlmu dan seni berkembang pesat,\nZaman kegemilangan Islam terpahat.\n\nChorus:\nWahai pemimpin, adil dan bijak,\nRakyat sejahtera, musuh pun gentar,\nNegara aman, syariat dijaga,\nItulah Harun, tokoh mulia.\n\nVerse 2:\nMalam dijelajah menyamar diri,\nMenilai nasib rakyat setiap negeri,\nHikmah dan iman dalam hatinya,\nCahaya Islam terus menyala.\n\nVerse 3:\nBaitul Hikmah jadi lambang cemerlang,\nUlama dihargai, ilmu berkembang,\nWarisan agung takkan dilupa,\nHarun Al-Rasyid, wira ummah tercinta.</p>` }, { type: "image", content: "https://i.ibb.co/q3GJ18Rf/16.png" }, { type: "image", content: "https://i.ibb.co/KpdpMDrP/17.png" }, { type: 'game', url: 'https://nurhafiza-18.github.io/harun-game/', caption: 'Jom Main Game' } ]
+      },
+      akhbar: {
+        desc: "Maharaja Mughal yang mengamalkan toleransi",
+        name: "Akbar The Great",
+        img: "https://i.ibb.co/XxCm8tQf/18.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/14xEQyYMH3eh?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Jalaluddin Muhammad Akbar (1542-1605 M) adalah maharaja Mughal India yang paling agung dan dihormati. Beliau memerintah dari 1556 hingga 1605 dan berjaya meluaskan empayar Mughal ke hampir seluruh benua kecil India. Keistimewaan Akbar terletak pada kebijaksanaannya dalam mengurus kepelbagaian agama dan budaya di India. Beliau mengamalkan toleransi agama yang luar biasa, memansuhkan cukai jizyah ke atas bukan Islam, dan membenarkan semua agama berkembang dengan bebas. Sistem pentadbiran yang dibinanya sangat cekap dan tersusun. Beliau menubuhkan agama Din-i-Ilahi sebagai usaha untuk menyatukan semua agama, walaupun ia tidak berjaya sepenuhnya. Istana beliau menjadi pusat seni dan budaya yang menarik ulama, seniman, dan intelektual dari seluruh dunia.",
+        facts: ["Maharaja Mughal India yang memerintah selama hampir 50 tahun.", "Mengamalkan toleransi agama dalam pemerintahannya.", "Memansuhkan cukai jizyah untuk bukan Islam.", "Menubuhkan agama Din-i-Ilahi sebagai usaha perpaduan.", "Mengembangkan sistem pentadbiran dan kutipan cukai yang cekap."],
+        motivation: "Kepelbagaian adalah kekuatan. Belajarlah dari Akbar, raikan perbezaan dan bina jambatan antara satu sama lain. Di situ letaknya keharmonian.",
+        badgeIcon: "🤝", badgeName: "Lencana Toleransi",
+        pages: [ { type: "image", content: "https://i.ibb.co/XxCm8tQf/18.png" }, { type: "audio", content: '<h4>Dengarkan podcast</h4><div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1dRHCSaqbnOw?autoplay=0" frameborder="0" allow="autoplay"></iframe><br><a href="https://voca.ro/1dRHCSaqbnOw" title="Vocaroo Voice Recorder" target="_blank">View on Vocaroo >></a></div>' }, { type: "image", content: "https://i.ibb.co/DHtR6zxK/akhbar.png" }, { type: "image", content: "https://i.ibb.co/4wCF5gw2/20.png" }, { type: "image", content: "https://i.ibb.co/n8jWdzJN/21.png" }, { type: 'game', url: 'https://nurhafiza-18.github.io/BINGO/', caption: 'Jom Main BINGO' } ]
+      },
+      aurangzeb: {
+        desc: "Pemerintah Mughal yang tegas dan konservatif",
+        name: "Aurangzeb",
+        img: "https://i.ibb.co/CsVLZ9Jp/22.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1oTcdECANu1O?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Muhi-ud-Din Muhammad Aurangzeb (1618-1707 M) adalah maharaja Mughal yang paling konservatif dan berdisiplin. Beliau memerintah selama 49 tahun dan merupakan pemerintah Mughal yang paling lama. Berbeza dengan para pendahulunya, Aurangzeb sangat komited dengan ajaran Islam dan berusaha melaksanakan undang-undang syariah secara menyeluruh. Beliau mengembalikan semula cukai jizyah yang telah dihapuskan oleh Akbar. Pemerintahannya ditandai dengan perluasan wilayah Mughal ke seluruh benua kecil India, tetapi juga dengan peperangan yang berterusan. Beliau dikenali sebagai seorang yang sangat warak, soleh, dan berdisiplin. Beliau menolak untuk menggunakan wang negara untuk keperluan peribadi dan menyara hidupnya dengan menjahit kopiah dan menyalin Al-Quran. Walau bagaimanapun, dasar-dasar konservatifnya mencetuskan beberapa penentangan di kalangan penduduk bukan Islam.",
+        facts: ["Pemerintah Mughal terakhir yang paling tegas dan konservatif.", "Melaksanakan undang-undang syariah Islam secara meluas.", "Mengembalikan semula cukai jizyah.", "Memperluas wilayah Mughal ke kemuncak terbesarnya.", "Dikenang sebagai pemerintah berdisiplin, soleh dan hidup sederhana."],
+        motivation: "Disiplin diri adalah kunci kejayaan. Aurangzeb menunjukkan bahawa dengan pegangan teguh pada prinsip, seseorang boleh mencapai matlamat yang besar.",
+        badgeIcon: "🕌", badgeName: "Lencana Disiplin",
+        pages: [ { type: "image", content: "https://i.ibb.co/CsVLZ9Jp/22.png" }, { type: "video", content: '<iframe class="lazy" width="100%" height="315" data-src="https://www.youtube.com/embed/68gqe2LJVsI" title="Aurangzeb: Raja Mughal Paling Kontroversial | Sejarah Islam di India" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' }, { type: "image", content: "https://i.ibb.co/8h1RY9Y/aurangzeb.png" }, { type: "image", content: "https://i.ibb.co/Kc9bvXXW/24.png" }, { type: 'link_text', content: 'KLIK SAYA DI https://dashboard.blooket.com/discover' }, { type: 'game', url: 'https://nurhafiza-18.github.io/aurangzebb/', caption: 'Jom Main Game' } ]
+      },
+      salahuddin: {
+        desc: "Pahlawan yang menawan semula Baitulmaqdis",
+        name: "Salahuddin Al-Ayyubi",
+        img: "https://i.ibb.co/gMhfNTdf/25.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1hP9ek1rLTpS?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Salahuddin Yusuf bin Ayyub (1137-1193 M) adalah salah seorang pahlawan Islam yang paling dihormati dalam sejarah. Beliau dilahirkan di Tikrit, Iraq, dan menjadi Sultan Mesir dan Syria, serta mengasaskan Dinasti Ayyubiyah. Nama beliau diabadikan dalam sejarah kerana kejayaannya menawan semula Baitulmaqdis daripada Tentera Salib pada tahun 1187 M selepas hampir 90 tahun kota itu dikuasai. Keistimewaan Salahuddin bukan hanya pada kehebatan tenteranya, tetapi juga pada akhlaknya yang mulia. Beliau terkenal dengan belas kasihan terhadap musuh dan rakyat Kristian. Ketika menawan Baitulmaqdis, beliau tidak membalas dendam malah membenarkan penduduk Kristian keluar dengan selamat. Peperangannya dengan Raja Richard the Lionheart menjadi legenda, di mana walaupun bermusuhan, mereka saling menghormati.",
+        facts: ["Menawan semula Baitulmaqdis dari Tentera Salib pada 1187.", "Dikenali kerana belas kasihan dan layanan adil terhadap musuh.", "Menjadi simbol keadilan dan keberanian Islam.", "Mengasaskan Dinasti Ayyubiyah di Mesir dan Syria.", "Dihormati oleh kawan dan lawan, termasuk Raja Richard the Lionheart."],
+        motivation: "Kekuatan sejati bukan hanya pada pedang, tetapi pada belas kasihan. Jadilah pahlawan dalam hidupmu dengan menunjukkan kebaikan.",
+        badgeIcon: "🛡️", badgeName: "Lencana Kepahlawanan",
+        pages: [ { type: "image", content: "https://i.ibb.co/gMhfNTdf/25.png" }, { type: "video", content: '<iframe class="lazy" width="100%" height="315" data-src="https://www.youtube.com/embed/-EbZ9G32yMM" title="Facts about Saladin - The Muslim Leader Loved by Christians" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' }, { type: "image", content: "https://i.ibb.co/Hfj7cx6Z/salahuddin.png" }, { type: "image", content: "https://i.ibb.co/MDNW97Tf/27.png" }, { type: "image", content: "https://i.ibb.co/3mtTbGwM/28.png" }, { type: 'game', url: 'https://nurhafiza-18.github.io/SALAHUDDIN/', caption: 'Jom Bermain' } ]
+      },
+      fateh: {
+        desc: "Penakluk Constantinople yang legendaris",
+        name: "Muhammad Al-Fateh",
+        img: "https://i.ibb.co/pB9JTJt3/29.png",
+        audioLatar: '<div><iframe class="lazy" width="100%" height="60" data-src="https://vocaroo.com/embed/1g9qodoMmcGt?autoplay=1" frameborder="0" allow="autoplay"></iframe></div>',
+        background: "Sultan Muhammad II (1432-1481 M), yang dikenali sebagai Muhammad Al-Fateh, adalah Sultan Uthmaniyah yang paling terkenal dalam sejarah. Beliau mencapai impian yang telah lama diidamkan oleh umat Islam - menakluki Constantinople (kini Istanbul) pada tahun 1453 M ketika berusia hanya 21 tahun. Pencapaian ini mengakhiri Empayar Byzantium yang telah bertahan selama lebih 1,000 tahun. Beliau menggunakan teknologi ketenteraan yang canggih termasuk meriam besar yang mampu merobohkan tembok kota yang terkenal kebal. Selepas menaklukkan Constantinople, beliau mengubah Hagia Sophia menjadi masjid dan menjadikan kota tersebut sebagai pusat baru empayar Islam. Beliau juga terkenal dengan kemampuannya menyatukan pelbagai etnik dalam empayarnya secara adil. Gelar 'Al-Fateh' yang bermaksud 'Sang Penakluk' diberikan kepadanya sebagai penghormatan atas pencapaiannya yang luar biasa.",
+        facts: ["Menakluk Constantinople pada usia 21 tahun (1453).", "Mengakhiri Empayar Byzantium yang berusia lebih 1000 tahun.", "Menggunakan meriam gergasi untuk meruntuhkan tembok kota.", "Digelar 'Al-Fateh' yang bermaksud 'Sang Penakluk'.", "Menjadikan Constantinople sebagai ibu kota Uthmaniyah yang baharu."],
+        motivation: "Tiada impian yang terlalu besar jika ada keazaman. Al-Fateh membuktikan bahawa dengan strategi, tembok yang paling kukuh pun boleh diruntuhkan.",
+        badgeIcon: "🏰", badgeName: "Lencana Al-Fateh",
+        pages: [ { type: "image", content: "https://i.ibb.co/pB9JTJt3/29.png" }, { type: "video", content: '<iframe class="lazy" width="100%" height="315" data-src="https://www.youtube.com/embed/9mE6CRmfYzo?si=oHsV0ux_uWnKK-ml" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' }, { type: "video", content: '<iframe class="lazy" width="100%" height="315" data-src="https://www.youtube.com/embed/8zFxyzm6f5I" title="Muhammad Al Fatih | Penakluk Konstantinopel" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' }, { type: "image", content: "https://i.ibb.co/N6XVmfd4/30.png" }, { type: "image", content: "https://i.ibb.co/23dKPNzY/31.png" }, { type: "image", content: "https://i.ibb.co/GfdCwCxC/32.png" }, { type: 'game', url: 'https://nurhafiza-18.github.io/padanan/', caption: 'Jom Main Padanan' }, { type: 'game', url: 'https://nurhafiza-18.github.io/pentaksiran/', caption: 'Jom Main Pentaksiran' } ]
+      }
+    };
+    
+    let currentTokoh = null;
+    let currentContentIndex = 0;
+    let earnedBadges = {};
+
+    const mainContent = document.getElementById('main-content');
+    const tokohButtonsContainer = document.getElementById('tokoh-buttons-container');
+    const tokohInfo = document.getElementById('tokoh-info');
+    const contentPages = document.getElementById('content-pages');
+    const backButton = document.getElementById('back-button');
+    const clickSound = document.getElementById('click-sound');
+    const badgeSound = document.getElementById('badge-sound');
+
+    // 2. FUNGSI BUNYI & NAVIGASI
+    function playSound() { clickSound.currentTime = 0; clickSound.play(); }
+    function playBadgeSound() { badgeSound.currentTime = 0; badgeSound.play(); }
+
+    function showTokohButtons() {
+      mainContent.classList.add("hidden");
+      tokohButtonsContainer.classList.remove("hidden");
+      backButton.classList.remove("hidden");
+      generateTokohCards();
+    }
+
+    function goBack() {
+      mainContent.classList.remove("hidden");
+      tokohButtonsContainer.classList.add("hidden");
+      tokohInfo.classList.add("hidden");
+      contentPages.classList.add("hidden");
+      backButton.classList.add("hidden");
+    }
+
+    // 3. FUNGSI PAPARAN DINAMIK
+    function generateTokohCards() {
+        const grid = document.getElementById('tokoh-grid');
+        grid.innerHTML = '';
+        Object.keys(tokohData).forEach(key => {
+            const tokoh = tokohData[key];
+            const isCompleted = earnedBadges[key];
+            const cardHTML = `
+                <div class="tokoh-card ${isCompleted ? 'completed' : ''}" onclick="playSound(); showTokoh('${key}')">
+                    <span class="completed-checkmark">✔️</span>
+                    <h3>${tokoh.name}</h3>
+                    <p>${tokoh.desc}</p>
+                </div>`;
+            grid.innerHTML += cardHTML;
+        });
+    }
+
+    function showTokoh(tokohId) {
+      currentTokoh = tokohId;
+      currentContentIndex = 0;
+      const info = tokohData[tokohId];
+      tokohButtonsContainer.classList.add("hidden");
+      tokohInfo.innerHTML = `
+        <div class="tokoh-header">
+          <img data-src="${info.img}" alt="${info.name}" class="tokoh-img lazy">
+          <h2 class="tokoh-name">${info.name}</h2>
+        </div>
+        <div class="tokoh-background">
+          <p>${info.background}</p>
+          <div class="audio-intro-container"><h4>🎧 Dengar Kisah Latar Belakang</h4>${info.audioLatar}</div>
+        </div>
+        <div class="tokoh-facts">
+          <h3>Fakta Menarik:</h3>
+          <ul class="tokoh-desc">${info.facts.map((f, i) => `<li style="animation-delay:${i*0.1}s">${f}</li>`).join("")}</ul>
+        </div>
+        <div class="nav-buttons">
+          <button onclick="playSound(); goBackFromTokoh()">⬅ Kembali</button>
+          <button onclick="playSound(); showNextContent()">Mula Meneroka ➡</button>
+        </div>`;
+      tokohInfo.classList.remove("hidden");
+      activateLazyLoading();
+    }
+
+    function showNextContent() {
+      const info = tokohData[currentTokoh];
+      if (currentContentIndex < info.pages.length) {
+        showContentPage(currentTokoh, currentContentIndex);
+        currentContentIndex++;
+      } else {
+        showMotivationAndAwardBadge(currentTokoh);
+      }
+    }
+
+    function showContentPage(tokohId, index) {
+      const info = tokohData[tokohId];
+      const page = info.pages[index];
+      tokohInfo.classList.add("hidden");
+      
+      const isLastPage = index >= info.pages.length - 1;
+      const nextButtonHTML = isLastPage 
+        ? `<button onclick="playSound(); showMotivationAndAwardBadge('${tokohId}')">Selesai & Terima Ganjaran ✨</button>`
+        : `<button onclick="playSound(); showNextContent()">Seterusnya ➡</button>`;
+      
+      const navButtonsHTML = `<div class="nav-buttons"><button onclick="playSound(); goBackFromContent()">⬅ Kembali ke Info</button>${nextButtonHTML}</div>`;
+      let contentHTML = '';
+
+      if (page.type === "image") contentHTML = `<div class="content-page"><img class="lazy" data-src="${page.content}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${info.name} - Konten ${index + 1}"><div class="page-indicator">${index + 1} / ${info.pages.length}</div>${navButtonsHTML}</div>`;
+      else if (page.type === "video" || page.type === "audio") contentHTML = `<div class="content-page"><div class="media-container">${page.content}</div><div class="page-indicator">${index + 1} / ${info.pages.length}</div>${navButtonsHTML}</div>`;
+      else if (page.type === "game") contentHTML = `<div class="content-page"><h3>Interaktif: Permainan</h3><p>Uji kefahaman anda!</p><button class="game-button" onclick="playSound(); window.open('${page.url}', '_blank')">${page.caption} 🚀</button><div class="page-indicator">${index + 1} / ${info.pages.length}</div>${navButtonsHTML}</div>`;
+      else if (page.type === 'link_text') contentHTML = `<div class="content-page"><h3>Pautan Tambahan</h3><p>${page.content}</p><div class="page-indicator">${index + 1} / ${info.pages.length}</div>${navButtonsHTML}</div>`;
+
+      contentPages.innerHTML = contentHTML;
+      contentPages.classList.remove("hidden");
+      activateLazyLoading();
+    }
+
+    function goBackFromTokoh() {
+      tokohInfo.classList.add("hidden");
+      contentPages.classList.add("hidden");
+      tokohButtonsContainer.classList.remove("hidden");
+    }
+
+    function goBackFromContent() {
+      contentPages.classList.add("hidden");
+      tokohInfo.classList.remove("hidden");
+      currentContentIndex--;
+    }
+
+    // 4. FUNGSI LENCANA & MOTIVASI
+    function loadBadges() {
+        const savedBadges = localStorage.getItem('sejakomEarnedBadges');
+        if (savedBadges) earnedBadges = JSON.parse(savedBadges);
+    }
+    
+    function saveBadges() {
+        localStorage.setItem('sejakomEarnedBadges', JSON.stringify(earnedBadges));
+    }
+
+    function awardBadge(tokohId) {
+        if (!earnedBadges[tokohId]) {
+            earnedBadges[tokohId] = true;
+            playBadgeSound();
+            saveBadges();
+        }
+    }
+
+    function showMotivationAndAwardBadge(tokohId) {
+        awardBadge(tokohId);
+        const info = tokohData[tokohId];
+        document.getElementById("motivation-title").innerText = `Anda Memperoleh ${info.badgeName}!`;
+        document.getElementById("motivation-text").innerText = info.motivation;
+        document.getElementById("motivation-popup").style.display = "flex";
+    }
+
+    function closeMotivationPopup() {
+        document.getElementById("motivation-popup").style.display = "none";
+        goBackFromTokoh();
+        generateTokohCards(); // Refresh kad untuk tunjuk checkmark
+    }
+
+    function showBadgeCollection() {
+        const grid = document.getElementById('badge-grid-popup');
+        grid.innerHTML = '';
+        Object.keys(tokohData).forEach(key => {
+            const tokoh = tokohData[key];
+            const isEarned = earnedBadges[key];
+            const badgeDiv = `
+                <div class="badge-card ${isEarned ? 'earned' : 'locked'}">
+                    <div class="badge-icon">${tokoh.badgeIcon}</div>
+                    <div class="badge-name">${tokoh.badgeName}</div>
+                </div>`;
+            grid.innerHTML += badgeDiv;
+        });
+        document.getElementById('badge-popup').style.display = 'flex';
+    }
+
+    function closeBadgePopup() {
+        document.getElementById('badge-popup').style.display = 'none';
+    }
+
+    // 5. FUNGSI BANTUAN & INISIALISASI
+    const activateLazyLoading = () => {
+        const lazyElements = document.querySelectorAll('.lazy:not(.loaded)');
+        const lazyObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const element = entry.target;
+                    if (element.dataset.src) {
+                         if (element.tagName === 'IFRAME') {
+                            element.src = element.dataset.src;
+                         } else {
+                            element.src = element.dataset.src;
+                         }
+                    }
+                    element.classList.add('loaded');
+                    observer.unobserve(element);
+                }
+            });
+        }, { rootMargin: "0px 0px 200px 0px" });
+        lazyElements.forEach(element => lazyObserver.observe(element));
+    };
+
+    function createStars() {
+      const starsContainer = document.querySelector('.stars');
+      if (!starsContainer.innerHTML) {
+          for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div'); star.className = 'star';
+            star.style.left = `${Math.random() * 100}%`; star.style.top = `${Math.random() * 100}%`;
+            star.style.animationDelay = `${Math.random() * 2}s`;
+            starsContainer.appendChild(star);
+          }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        createStars();
+        loadBadges();
+        generateTokohCards(); 
+        activateLazyLoading();
+
+        // === PENTING: DAFTAR SERVICE WORKER ===
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js') // Pastikan nama fail adalah sw.js
+              .then(registration => {
+                console.log('Service Worker berjaya didaftarkan: ', registration);
+              })
+              .catch(registrationError => {
+                console.log('Pendaftaran Service Worker gagal: ', registrationError);
+              });
+          });
+        }
+        // =====================================
+    });
+  </script>
+</body>
+</html>
